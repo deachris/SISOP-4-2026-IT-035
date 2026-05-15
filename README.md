@@ -215,7 +215,16 @@ Pada kode di atas, isi dari file akan dibaca dan ditampilkan ke user.
 
 - Fungsi main()
 ```
+int  main(int  argc, char *argv[])
+{
+    realpath(argv[1], dirpath);
+    argv[1] = argv[2];
+    argc--;
 
+    umask(0);
+
+    return fuse_main(argc, argv, &xmp_oper, NULL);
+}
 ```
 Fungsi ini menyimpan lokasi folder amba_files sebagai sumber data, kemudian argumen dirapikan agar sesuai dengan format yang dibutuhkan fuse, dan kemudian dijalankab sehingga semua operasi yang dilakukan di folder mnt/ seperti membaca dan melihat isi folder akan ditangani oleh fungsi-fungsi yang sudah dibuat sebelumnya.
 
@@ -228,4 +237,365 @@ Fungsi ini menyimpan lokasi folder amba_files sebagai sumber data, kemudian argu
 **Poke MOO**
 
 #### Penjelasan
-Pertama-tama, server didownload dari folder release 
+Pertama-tama, server didownload dari folder release yang ada di soal. Setelah didownload, pindahkan ke folder soal_2
+```
+$ mv ~/Downloads/server ~/SISOP-4-2026-IT-035/soal_2/
+$ chmod +x ~/SISOP-4-2026-IT-035/soal_2/server // Untuk menjalankan server
+```
+
+Project ini adalah app database dengan struktur folder database dengan program di /app/db. Program servernya sendiri dapat diakses melalui TCP Connection dengan port 9000.
+
+## Program fuse pada fuse.c
+```#define BASE_DIR "/home/ubuntu/SISOP-4-2026-IT-035/soal_2/encrypted_storage"```
+
+Path absoulutnya ada di deirektori penyimpanan file.
+
+- Fungsi Fullpath
+```
+static void fullpath(char fpath[1000], const char *path) {
+    if (strcmp(path, "/") == 0) {
+        sprintf(fpath, "%s", BASE_DIR);
+        return;
+    }
+
+    char temp[1000];
+    sprintf(temp, "%s%s", BASE_DIR, path);
+
+    struct stat st;
+    if (stat(temp, &st) == 0 && S_ISDIR(st.st_mode)) {
+        sprintf(fpath, "%s%s", BASE_DIR, path);
+    } else {
+        sprintf(fpath, "%s%s.enc", BASE_DIR, path);
+    }
+```
+Pada kode di atas, digunakan untuk mengubah path yang diminta user menjadi path yang sebenarnya di encrypted_storage. Jika user mengakses folder utama mount, maka program langsung mengarahkan ke folder encrypted_storage.
+Jika user mengakses folder yang sudah dibuat sebelumnya, program akan mengecek apakah folder tersebut sudah ada. Jika sudah, maka path tersebut langsung digunakan tanpa tambahan .enc karena tidak perlu dienkripsi.
+Jika user mengakses file, misalnya di dalam folder yang sudah dibuat, program akan menambahkan .enc di belakang nama filenya karena file tersebut adalah yang sebenarnya disimpan di disk dan terenkripsi.
+
+- Fungsi xmp_getattr()
+```
+static int xmp_getattr(const char *path, struct stat *stbuf,
+                       struct fuse_file_info *fi) {
+    char fpath[1000];
+    fullpath(fpath, path);
+
+    int res = lstat(fpath, stbuf);
+    if (res == -1)
+        return -errno;
+
+    return 0;
+}
+```
+Fungsi ini untuk mengambil isi file dari encrypted_storage dan lalu diterukan ke sistem. Fungsi ini akan diapnggil setiap sistem butuh info file.
+
+- Fungsi xmp_readdir()
+```
+static int xmp_readdir(const char *path, void *buf,
+                       fuse_fill_dir_t filler,
+                       off_t offset,
+                       struct fuse_file_info *fi,
+                       enum fuse_readdir_flags flags) {
+
+    DIR *dp;
+    struct dirent *de;
+
+    char fpath[1000];
+    fullpath(fpath, path);
+
+    dp = opendir(fpath);
+    if (dp == NULL)
+        return -errno;
+
+    while ((de = readdir(dp)) != NULL) {
+
+        char name[256];
+        strcpy(name, de->d_name);
+
+        if (strstr(name, ".enc")) {
+            name[strlen(name) - 4] = '\0';
+        }
+
+        filler(buf, name, NULL, 0, 0);
+    }
+
+    closedir(dp);
+    return 0;
+}
+```
+Kode ini adalah untuk membaca file dari encrypted_storgae dan menghapus adannya .enc sebelum ditampilkan ke terminal user.
+
+- Fungsi xmp_mkdir()
+Fungsi ini sendiri adalah untuk membuat folder di encrypted_storage.
+```
+static int xmp_mkdir(const char *path, mode_t mode) {
+    char fpath[1000];
+    fullpath(fpath, path);
+
+    int res = mkdir(fpath, mode);
+
+    if (res == -1)
+        return -errno;
+
+    return 0;
+}
+```
+
+- Fungsi xmp_mkdir()
+Fungsi ini sendiri adalah untuk menghapus folder di encrypted_storage.
+```
+static int xmp_rmdir(const char *path) {
+    char fpath[1000];
+    fullpath(fpath, path);
+
+    int res = rmdir(fpath);
+
+    if (res == -1)
+        return -errno;
+
+    return 0;
+}
+```
+
+- Fungsi xmp_create()
+```
+static int xmp_create(const char *path,
+                      mode_t mode,
+                      struct fuse_file_info *fi) {
+
+    char fpath[1000];
+    fullpath(fpath, path);
+
+    int fd = open(fpath, fi->flags | O_CREAT, mode);
+
+    if (fd == -1)
+        return -errno;
+
+    close(fd);
+    return 0;
+}
+```
+Pada kode di atas, fungsinya dipanggil saat akan membuat file baru, file baru tersebut dibuat jika belum ada dengan flag O_CREAT. Di sini funsgi fullpath yang sebelumnya dipanggil.
+
+- Fungsi xmp_open()
+```
+static int xmp_open(const char *path,
+                    struct fuse_file_info *fi) {
+
+    char fpath[1000];
+    fullpath(fpath, path);
+
+    int fd = open(fpath, fi->flags);
+
+    if (fd == -1)
+        return -errno;
+
+    fi->fh = fd;
+
+    return 0;
+}
+```
+Fungsi di sini adalah untuk membuka file .enc di encrypted_storage dan menyimpan file descriptor di fi->fh untuk dapat dibaca/digunakan selanjutnya. 
+
+- Fungsi xmp_read()
+```
+static int xmp_read(const char *path,
+                    char *buf,
+                    size_t size,
+                    off_t offset,
+                    struct fuse_file_info *fi) {
+
+    char fpath[1000];
+    fullpath(fpath, path);
+
+    int fd = open(fpath, O_RDONLY);
+
+    if (fd == -1)
+        return -errno;
+
+    int res = pread(fd, buf, size, offset);
+
+    if (res == -1)
+        res = -errno;
+    else
+        xor_crypt(buf, res);
+
+    close(fd);
+
+    return res;
+}
+```
+Pada kode ini, file .enc tadi dibuka dan dibaca dari encrypted_storage. Kemudian xor_ecrypt() dipanggil untuk mendekripsinya sehingga diubah kembali menjadi teks asli. Setelah itu, teks asli ditampilkan ke user.
+
+- Fungsi xmp_write()
+```
+static int xmp_write(const char *path,
+                     const char *buf,
+                     size_t size,
+                     off_t offset,
+                     struct fuse_file_info *fi) {
+
+    char fpath[1000];
+    fullpath(fpath, path);
+
+    char *enc = malloc(size);
+
+    memcpy(enc, buf, size);
+
+    xor_crypt(enc, size);
+
+    int fd = open(fpath, O_WRONLY);
+
+    if (fd == -1) {
+        free(enc);
+        return -errno;
+    }
+
+    int res = pwrite(fd, enc, size, offset);
+
+    if (res == -1)
+        res = -errno;
+
+    free(enc);
+    close(fd);
+
+    return res;
+  }
+```
+Fungsi ini adalah untuk mengcopy data dari user ke buffer sementara. Kemudian untuk mengenkripsi dipanggil cor_encrypt. Data yang sudah terenkripsi ditulis ke file .enc di encrypted_storage.
+
+- Fungsi xmp_truncate
+Pada fungsi ini, truncate sendiri didgunakan untuk memotong ukuran file .enc sebelum isinya ditulis ulang agar isi file lama tidak tertinggal. 
+```
+static int xmp_truncate(const char *path,
+                        off_t size,
+                        struct fuse_file_info *fi) {
+
+    char fpath[1000];
+    fullpath(fpath, path);
+
+    int res = truncate(fpath, size);
+
+    if (res == -1)
+        return -errno;
+
+    return 0;
+}
+```
+
+- Fungsi xmp_unlink()
+Fungsi ini sendiri digunakan agar program tahu file yang mana sebenarnya harus dihapus ketika user ingin menghapus file yaitu untuk menghapus file .enc dari encrypted_storage. 
+```
+static int xmp_unlink(const char *path) {
+
+    char fpath[1000];
+    fullpath(fpath, path);
+
+    int res = unlink(fpath);
+
+    if (res == -1)
+        return -errno;
+
+    return 0;
+}
+```
+
+- Fungsi xmp_access
+Fungsi ini digunakan untuk bisa mengakses file sehingga program akan mengecek dahulu permission file di encrypted_storage, apakah bisa diakses oleh user atau tidak, seperti membaca, menulis, ataupun mengeksekusi file. 
+```
+static int xmp_access(const char *path, int mask) {
+
+    char fpath[1000];
+    fullpath(fpath, path);
+
+    int res = access(fpath, mask);
+
+    if (res == -1)
+        return -errno;
+
+    return 0;
+}
+```
+
+- Fungsi utiments()
+Fungsi ini adalah unutk mengubah dan memperbarui timestamp file yaitu penacatatan waktu pembuatan atau perubahan file.
+```
+static int xmp_utimens(const char *path,
+                       const struct timespec tv[2],
+                       struct fuse_file_info *fi) {
+
+    char fpath[1000];
+    fullpath(fpath, path);
+
+    int res = utimensat(0, fpath, tv, 0);
+
+    if (res == -1)
+        return -errno;
+
+    return 0;
+}
+```
+
+- Fungsi xor_crypt()
+Kode ini digunakan untuk mengenkripsi atau mendecrypt data menggunakan operasi XOR.
+```
+void xor_crypt(char *data, size_t len) {
+
+    for (size_t i = 0; i < len; i++) {
+        data[i] ^= 0x76;
+    }
+}
+```
+
+## File client.c
+Program client sendiri adalah untuk berinteraksi dengan server database, dihubungkan ke server kemudian menyerahkannya ke handle_connection()
+```
+void handle_connection(int sock) {
+    char buffer[BUFFER_SIZE];
+    char response[BUFFER_SIZE];
+
+    printf("Connected to DB Server on port %d\n", PORT);
+    printf("Type HELP for available commands\n");
+    printf("Type EXIT to quit\n\n");
+
+    while (1) {
+        printf("db > ");
+        fgets(buffer, BUFFER_SIZE, stdin);
+
+        buffer[strcspn(buffer, "\n")] = 0;
+
+        if (strcmp(buffer, "EXIT") == 0) break;
+        if (strlen(buffer) == 0) continue;
+
+        send(sock, buffer, strlen(buffer), 0);
+
+        int valread = read(sock, response, BUFFER_SIZE);
+        if (valread > 0) {
+            response[valread] = '\0';
+            printf("%s\n", response);
+        }
+    }
+}
+```
+Pada kode di atas, pertama sekali membaca input user kemudian jika input adalah EXIT maka akan langsung keluar dan dikirim ke server. Kemudian balasannya adakan diterima dan juga ditampilkan. Ini akan berjalan terus sampai user menginput EXIT.
+
+## Dockerfile
+```
+FROM ubuntu:latest
+
+RUN apt-get update && apt-get install -y gcc pkg-config fuse3 libfuse3-dev
+
+WORKDIR /app
+
+COPY . .
+
+RUN gcc fuse.c -o fuse `pkg-config fuse3 --cflags --libs`
+
+EXPOSE 9000
+
+CMD ["./server"]
+```
+Dockerfile ini adalah untuk
+Yang digunakna adalah base image Ubuntu terbaru. Kemudian menginstal gcc, pkg-config, fuse3, dan libfuse3-dev untuk keperluan mengcompile fuse.c. Folder direktori yang digunakan adalah folder /app.
+Kemudian semua file dari folder soal_2 dicopy ke /app di container. Setelah itu fuse.c dicompile. Untuk koneksi TCP dari client.c menggunakan port 9000. Ketika container start, server pun dijalankan.
+
+### OUTPUT
