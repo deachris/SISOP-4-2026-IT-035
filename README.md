@@ -139,7 +139,7 @@ static int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_
     return 0;
 }
 ```
-Kode di atas adalah untuk menampilkan semua file dari `amba_files` yang isinya akan dibaca semuanya. Kemudian file `tujuan.txt` ditambahkan secara manual, sehingga total ada 8 di `mnt/`.
+Kode di atas adalah untuk menampilkan semua file dari `amba_files` yang isinya akan dibaca semuanya. Kemudian file `tujuan.txt` ditambahkan secara manual, sehingga total ada 8 entry di `mnt/`, sedangkan di amba_files tetap 7 entry. 
 
 - Fungsi `xmp_open()`
 ```
