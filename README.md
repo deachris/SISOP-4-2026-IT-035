@@ -88,7 +88,7 @@ static  int  xmp_getattr(const char *path, struct stat *stbuf)
     return 0;
 }
 ```
-Kode di atas 
+Kode di atas berfungsi untuk menampilkan informasi file dari yang dicari. Untuk ukuran informasi virtual_content diambil dari gabungan koordinat yang dihitung di generate_virtual_content.
 
 - Fungsi xmp_readdir()
 ```
@@ -160,6 +160,7 @@ static int xmp_open(const char *path, struct fuse_file_info *fi)
     return 0;
 }
 ```
+Fungsi ini adalah untuk membuka file, misalnya jika ingin membuka virtual_file, maka dia akan langsung return.
 
 - Fungsi `xmp_read()`
 ```
@@ -210,6 +211,14 @@ static int xmp_read(const char *path, char *buf, size_t size, off_t offset, stru
     return res;
 }
 ```
+Pada kode di atas, isi dari file akan dibaca dan ditampilkan ke user. 
+
+- Fungsi main()
+```
+
+```
+Fungsi ini menyimpan lokasi folder amba_files sebagai sumber data, kemudian argumen dirapikan agar sesuai dengan format yang dibutuhkan fuse, dan kemudian dijalankab sehingga semua operasi yang dilakukan di folder mnt/ seperti membaca dan melihat isi folder akan ditangani oleh fungsi-fungsi yang sudah dibuat sebelumnya.
+
 ### OUTPUT
 <img width="902" height="185" alt="image" src="https://github.com/user-attachments/assets/148ca510-ba29-49cb-a568-0132d1fe689d" />
 
