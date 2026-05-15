@@ -225,6 +225,7 @@ Fungsi ini menyimpan lokasi folder amba_files sebagai sumber data, kemudian argu
 <img width="901" height="406" alt="image" src="https://github.com/user-attachments/assets/6ebe98bc-5b29-4032-adef-819ed5875773" />
 
 ### Soal 2
-**Save Asisten Kenz**
+**Poke MOO**
 
 #### Penjelasan
+Pertama-tama, server didownload dari folder release 
