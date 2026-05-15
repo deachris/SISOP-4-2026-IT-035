@@ -9,13 +9,17 @@
 
 #### Penjelasan
 1. Langkah pertama adalah mengambil arsip `amba_files.zip` kemudian di unzip dan file zipnya lalu dihapus.
+   
 ```$ gdown "1nLXFhptDo2mnUlZsw8pTWyAVpV49W20U"```
+
 Setelah file zip terdownload, maka file tersebut diunzip.
+
 ```$ unzip amba_files.zip```
+
 File zip dihapus:
 ```$ rm -rf amba_files.zip```
 
-2. Membuat program fuse `kenz_rescue.c`. Saat program di-mount, semua file pada amba_files muncul di mount directory.
+3. Membuat program fuse `kenz_rescue.c`. Saat program di-mount, semua file pada amba_files muncul di mount directory.
 - Fungsi untuk menggabungkan semua KOORD:
 ```
 static char virtual_content[8192];
