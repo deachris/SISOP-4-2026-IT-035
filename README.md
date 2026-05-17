@@ -249,7 +249,7 @@ Fungsi ini menyimpan lokasi folder amba_files sebagai sumber data, kemudian argu
 <img width="897" height="72" alt="image" src="https://github.com/user-attachments/assets/ee9d821e-ce94-4bb3-8aa7-f16412f0c3cd" />
 
 6. Isi `tujuan.txt`
-
+<img width="897" height="87" alt="image" src="https://github.com/user-attachments/assets/36168d17-434b-4f62-b155-280151a3faf7" />
 
 ### Soal 2
 **Poke MOO**
@@ -622,4 +622,13 @@ Yang digunakan adalah base image Ubuntu terbaru. Kemudian menginstal `gcc`, `pkg
 Kemudian semua file dari folder `soal_2` dicopy ke `/app` di container. Setelah itu `fuse.c` dicompile. Untuk koneksi TCP dari `client.c` menggunakan port 9000. Ketika container start, server pun dijalankan.
 
 ### OUTPUT
-1. 
+1. Compile `fuse.c`
+<img width="902" height="67" alt="image" src="https://github.com/user-attachments/assets/ef6737e3-7737-41c3-b207-2f729fbecb21" />
+
+2. Membuat docker image
+
+
+3. Jalankan container
+
+
+4. 
