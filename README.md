@@ -636,6 +636,7 @@ Kemudian semua file dari folder `soal_2` dicopy ke `/app` di container. Setelah 
 <img width="905" height="101" alt="image" src="https://github.com/user-attachments/assets/b8c627a3-e4c3-40ca-9706-db9287674611" />
 
 Tampilan tree:
+
 <img width="905" height="473" alt="image" src="https://github.com/user-attachments/assets/4ef87f64-5fc8-423f-ae9d-2419410a5967" />
 
 5. Compile client
