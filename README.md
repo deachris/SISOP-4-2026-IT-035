@@ -631,5 +631,16 @@ Kemudian semua file dari folder `soal_2` dicopy ke `/app` di container. Setelah 
 3. Jalankan container
 <img width="905" height="188" alt="image" src="https://github.com/user-attachments/assets/2f7cba87-3b8a-4aea-8878-058f9652e001" />
 
+4. Buat file baru
+<img width="902" height="47" alt="image" src="https://github.com/user-attachments/assets/de949eda-9319-4c73-b4dc-ad743dda1d88" />
+<img width="905" height="101" alt="image" src="https://github.com/user-attachments/assets/b8c627a3-e4c3-40ca-9706-db9287674611" />
 
-4. 
+Tampilan tree:
+<img width="905" height="473" alt="image" src="https://github.com/user-attachments/assets/4ef87f64-5fc8-423f-ae9d-2419410a5967" />
+
+5. Compile client
+<img width="912" height="52" alt="image" src="https://github.com/user-attachments/assets/a7d5c0ab-e3c6-416d-a8b6-fffdd333164a" />
+<img width="905" height="657" alt="image" src="https://github.com/user-attachments/assets/3ea429c2-e8e4-47c5-a9c5-25438dcba326" />
+
+### Kendala
+Tabel dari database tidak bisa dibuat
