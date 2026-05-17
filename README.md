@@ -629,6 +629,7 @@ Kemudian semua file dari folder `soal_2` dicopy ke `/app` di container. Setelah 
 <img width="912" height="817" alt="image" src="https://github.com/user-attachments/assets/0142ed30-ff42-4137-bd7d-769092c80fa0" />
 
 3. Jalankan container
+<img width="905" height="188" alt="image" src="https://github.com/user-attachments/assets/2f7cba87-3b8a-4aea-8878-058f9652e001" />
 
 
 4. 
