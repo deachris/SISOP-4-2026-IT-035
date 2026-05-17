@@ -640,7 +640,8 @@ Tampilan tree:
 
 5. Compile client
 <img width="912" height="52" alt="image" src="https://github.com/user-attachments/assets/a7d5c0ab-e3c6-416d-a8b6-fffdd333164a" />
-<img width="905" height="657" alt="image" src="https://github.com/user-attachments/assets/3ea429c2-e8e4-47c5-a9c5-25438dcba326" />
 
-### Kendala
-Tabel dari database tidak bisa dibuat
+Membuat database:
+<img width="900" height="715" alt="image" src="https://github.com/user-attachments/assets/8f6ed0c1-c643-43d7-a170-7a59ab600741" />
+<img width="902" height="275" alt="image" src="https://github.com/user-attachments/assets/4bf9e4b4-2457-47cf-ad34-eb04c6b9d574" />
+
