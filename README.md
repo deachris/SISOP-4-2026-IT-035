@@ -626,7 +626,7 @@ Kemudian semua file dari folder `soal_2` dicopy ke `/app` di container. Setelah 
 <img width="902" height="67" alt="image" src="https://github.com/user-attachments/assets/ef6737e3-7737-41c3-b207-2f729fbecb21" />
 
 2. Membuat docker image
-
+<img width="912" height="817" alt="image" src="https://github.com/user-attachments/assets/0142ed30-ff42-4137-bd7d-769092c80fa0" />
 
 3. Jalankan container
 
